@@ -188,27 +188,31 @@ function syncToSheet(sheetName, data){
     let rows=[];
     if(sheetName==='출퇴근'){
       rows=Object.entries(data).map(([date,r])=>[date,r.day||'',r.in||'',r.out||'',r.in&&r.out?Math.round(workMins(r.in,r.out)):'']);
-      fetch(GS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({sheet:'출퇴근',action:'clear',headers:['날짜','요일','출근','퇴근','근무시간(분)'],rows:rows.sort()})});
+      let payload=encodeURIComponent(JSON.stringify({clear:true,headers:['날짜','요일','출근','퇴근','근무시간(분)'],rows:rows.sort()}));
+      fetch(GS_URL+'?action=write&sheet=출퇴근&data='+payload,{mode:'no-cors'});
     }
   }catch(e){console.log('시트 동기화 오류:',e)}
 }
 function syncReturnsToSheet(rets){
   try{
     let rows=rets.map(r=>[r.date,r.cust||'',r.platform||'',r.reason||'',r.cond||'',r.amt||'',r.status||'',r.track1||'',r.track2||'',r.memo||'']);
-    fetch(GS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({sheet:'반품',action:'clear',headers:['날짜','고객명','플랫폼','사유','제품상태','환불금액','처리상태','원운송장','반품운송장','메모'],rows})});
+    let payload=encodeURIComponent(JSON.stringify({clear:true,headers:['날짜','고객명','플랫폼','사유','제품상태','환불금액','처리상태','원운송장','반품운송장','메모'],rows}));
+    fetch(GS_URL+'?action=write&sheet=반품&data='+payload,{mode:'no-cors'});
   }catch(e){console.log('반품 시트 동기화 오류:',e)}
 }
 function syncInvToSheet(){
   try{
     let inv=getInventory();
     let rows=INV_ITEMS.map(i=>[i.label,parseInt(inv[i.key]||0),i.unit,i.group]);
-    fetch(GS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({sheet:'재고',action:'clear',headers:['품목','수량','단위','구분'],rows})});
+    let payload=encodeURIComponent(JSON.stringify({clear:true,headers:['품목','수량','단위','구분'],rows}));
+    fetch(GS_URL+'?action=write&sheet=재고&data='+payload,{mode:'no-cors'});
   }catch(e){console.log('재고 시트 동기화 오류:',e)}
 }
 function syncRankToSheet(snap,dateStr){
   try{
     let row=[dateStr,...RANK_PLATFORMS.map(p=>snap[p.key]||0)];
-    fetch(GS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify({sheet:'순위',headers:['날짜',...RANK_PLATFORMS.map(p=>p.label)],rows:[row]})});
+    let payload=encodeURIComponent(JSON.stringify({headers:['날짜',...RANK_PLATFORMS.map(p=>p.label)],rows:[row]}));
+    fetch(GS_URL+'?action=write&sheet=순위&data='+payload,{mode:'no-cors'});
   }catch(e){console.log('순위 시트 동기화 오류:',e)}
 }
 
