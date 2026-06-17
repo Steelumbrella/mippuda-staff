@@ -1,2 +1,1126 @@
-# mippuda-staff
-미쁘다 직원 관리 시스템
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>미쁘다 직원 관리 시스템</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#111;--bg2:#1a1a1a;--bg3:#222;
+  --text:#f0f0f0;--text2:#999;--text3:#555;
+  --border:#2a2a2a;--border2:#333;
+  --green:#22c55e;--green-bg:#052e16;
+  --red:#f87171;--red-bg:#2d0a0a;
+  --blue:#60a5fa;--blue-bg:#0c1e3d;
+  --yellow:#fbbf24;--yellow-bg:#2d1a00;
+  --radius:10px;--radius-sm:6px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg2);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--bg);border:1px solid var(--border2);border-radius:16px;padding:40px;width:360px}
+.login-logo{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:28px}
+.login-roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+.role-card{border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:12px;cursor:pointer;text-align:center}
+.role-card.selected{border-color:var(--text)}
+.role-card .ri{font-size:20px;margin-bottom:4px}
+.role-card .rn{font-size:13px;font-weight:600}
+.role-card .rd{font-size:11px;color:var(--text2)}
+.login-box input[type=password]{width:100%;padding:12px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:15px;background:var(--bg2);color:var(--text);outline:none;margin-bottom:12px}
+.login-btn{width:100%;padding:13px;background:var(--text);color:#111;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer}
+.login-err{color:var(--red);font-size:13px;text-align:center;margin-top:10px;min-height:20px}
+.app{display:none;min-height:100vh;flex-direction:column}
+.app.visible{display:flex}
+.topbar{background:var(--bg);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:16px;font-weight:700}
+.nav{display:flex;gap:2px;flex-wrap:wrap}
+.nav-btn{padding:6px 12px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--text2)}
+.nav-btn:hover{background:var(--bg2);color:var(--text)}
+.nav-btn.active{background:var(--text);color:#111}
+.user-badge{font-size:12px;color:var(--text2);background:var(--bg2);padding:4px 12px;border-radius:20px;border:1px solid var(--border)}
+.logout-btn{font-size:12px;color:var(--text2);cursor:pointer;padding:4px 8px;border:none;background:transparent}
+.content{flex:1;padding:24px;max-width:1000px;margin:0 auto;width:100%}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-bg);color:var(--green)}
+.badge-red{background:var(--red-bg);color:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}
+.badge-yellow{background:var(--yellow-bg);color:var(--yellow)}
+.badge-gray{background:var(--bg3);color:var(--text2)}
+.btn{padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg2);color:var(--text);display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--bg3)}
+.btn-primary{background:var(--text);color:#111;border-color:var(--text)}
+.btn-primary:hover{opacity:.85}
+.btn-sm{padding:5px 12px;font-size:12px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:9px 12px;color:var(--text2);font-weight:500;border-bottom:1px solid var(--border);font-size:12px;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+input[type=text],input[type=number],input[type=time],input[type=date],select,textarea{padding:9px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:var(--bg2);outline:none;font-family:inherit}
+input:focus,select:focus,textarea:focus{border-color:#666}
+textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{margin-bottom:14px}
+.form-group label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500}
+.form-group input,.form-group select,.form-group textarea{width:100%}
+.clock-time{font-size:48px;font-weight:700;letter-spacing:-1px;text-align:center;margin-bottom:4px}
+.clock-date{font-size:14px;color:var(--text2);text-align:center;margin-bottom:20px}
+.checklist-section{margin-bottom:24px}
+.checklist-title{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.check-progress{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.progress-bar{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+.progress-text{font-size:12px;color:var(--text2);white-space:nowrap}
+.check-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.check-item-body{flex:1}
+.check-item-title{font-size:14px;font-weight:500}
+.check-item-desc{font-size:12px;color:var(--text3);margin-top:2px}
+.check-item.done .check-item-title{text-decoration:line-through;color:var(--text3)}
+.check-link{font-size:12px;color:var(--blue);text-decoration:none;display:inline-block;margin-top:4px}
+.manual-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.manual-tab{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg2);color:var(--text2)}
+.manual-tab.active{background:var(--text);color:#111;border-color:var(--text)}
+.manual-section{display:none}.manual-section.active{display:block}
+.step{display:flex;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--text);color:#111;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.step-body p{font-size:13px;color:var(--text2);line-height:1.7}
+.tip{background:var(--blue-bg);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;font-size:13px;color:var(--blue);margin-top:10px;line-height:1.6}
+.warn{background:var(--yellow-bg);border-left:3px solid var(--yellow);padding:10px 14px;font-size:13px;color:var(--yellow);margin-top:10px;line-height:1.6;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.sku-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.sku-table th{background:var(--bg3);padding:10px 12px;text-align:center;border:1px solid var(--border2);font-weight:600;font-size:12px}
+.sku-table td{padding:10px 12px;border:1px solid var(--border2);text-align:center;vertical-align:middle}
+.sku-label{display:inline-flex;width:28px;height:28px;border-radius:50%;font-weight:700;font-size:13px;align-items:center;justify-content:center;border:1.5px solid var(--border2);background:var(--bg3);color:var(--text)}
+.sku-a{background:#1e3a2f;color:var(--green);border-color:var(--green)}
+.sku-b{background:#1e2a3a;color:var(--blue);border-color:var(--blue)}
+.sku-cde{background:#2d2000;color:var(--yellow);border-color:var(--yellow)}
+.stat-grid{display:grid;gap:12px;margin-bottom:16px}
+.stat-grid.col4{grid-template-columns:repeat(4,1fr)}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:4px}
+.stat-value{font-size:22px;font-weight:700}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.inv-section{margin-bottom:24px}
+.inv-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.inv-row{display:grid;grid-template-columns:150px 120px 1fr 80px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.inv-row:last-child{border-bottom:none}
+.inv-row-header{font-size:11px;color:var(--text3);padding:4px 0}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
+.pay-row:last-child{border-bottom:none;font-weight:700;font-size:16px;padding-top:12px;color:var(--green)}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+.slide-form{display:none;background:var(--bg2);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px}
+.slide-form.open{display:block}
+@media(max-width:640px){
+  .stat-grid.col4{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .inv-row{grid-template-columns:120px 100px 1fr}
+  .content{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">미쁘다 🧴</div>
+    <div class="login-sub">직원 관리 시스템</div>
+    <div class="login-roles">
+      <div class="role-card selected" id="role-staff" onclick="selectRole('staff')">
+        <div class="ri">👤</div><div class="rn">직원</div>
+      </div>
+      <div class="role-card" id="role-admin" onclick="selectRole('admin')">
+        <div class="ri">🛡️</div><div class="rn">관리자</div>
+      </div>
+    </div>
+    <input type="password" id="pwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="logo">미쁘다</div>
+      <nav class="nav" id="mainNav"></nav>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="user-badge" id="userBadge"></div>
+      <button class="logout-btn" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+  <div class="content" id="mainContent"></div>
+</div>
+
+<script>
+const PW={staff:'5888',admin:'1988'};
+const HOURLY=11000;
+const START='2026-06-22';
+const END='2026-08-14';
+const DAYS=['일','월','화','수','목','금','토'];
+let role='staff',clockTimer=null;
+
+function load(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function getRecords(){return load('mp_att')||{}}
+function setRecords(r){save('mp_att',r)}
+function getInventory(){return load('mp_inv')||{}}
+function setInventory(v){save('mp_inv',v)}
+function getReturns(){return load('mp_ret')||[]}
+function setReturns(v){save('mp_ret',v)}
+function getRanks(){return load('mp_rank')||[]}
+function setRanks(v){save('mp_rank',v)}
+function getChecklist(type){return load('mp_cl_'+type+'_'+today())||{}}
+function setChecklist(type,v){save('mp_cl_'+type+'_'+today(),v)}
+
+function pad(n){return String(n).padStart(2,'0')}
+function today(){let d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function fmtMoney(n){return '₩'+Math.round(n).toLocaleString()}
+function fmtTime(d){return pad(d.getHours())+':'+pad(d.getMinutes())}
+function fmtTimeFull(d){return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+function getDay(k){return DAYS[new Date(k).getDay()]}
+function isWeekend(k){let d=new Date(k).getDay();return d===0||d===6}
+function workMins(i,o){
+  if(!i||!o)return 0;
+  let im=toMin(i),om=toMin(o),m=Math.max(0,om-im);
+  let l=Math.max(0,Math.min(om,840)-Math.max(im,780));
+  return Math.max(0,m-l);
+}
+function toMin(t){let[h,m]=t.split(':').map(Number);return h*60+m}
+function weekStart(k){
+  let d=new Date(k),day=d.getDay(),mon=new Date(d);
+  mon.setDate(d.getDate()-(day===0?6:day-1));
+  return mon.getFullYear()+'-'+pad(mon.getMonth()+1)+'-'+pad(mon.getDate());
+}
+function allWorkDays(){
+  let days=[],d=new Date(START),end=new Date(END);
+  while(d<=end){let s=d.toISOString().slice(0,10);if(!isWeekend(s))days.push(s);d.setDate(d.getDate()+1)}
+  return days;
+}
+function buildWeekMap(dates){
+  let weeks={};
+  dates.forEach(k=>{
+    let wk=weekStart(k);
+    if(!weeks[wk])weeks[wk]={days:0,mins:0,bonus:0};
+    let r=getRecords()[k];
+    if(r&&r.in&&r.out){weeks[wk].days++;weeks[wk].mins+=workMins(r.in,r.out)}
+  });
+  Object.values(weeks).forEach(w=>{
+    if(w.days>=5)w.bonus=8*HOURLY;
+    else if(w.days>0)w.bonus=Math.round(w.mins/60/40*8)*HOURLY;
+  });
+  return weeks;
+}
+
+function selectRole(r){
+  role=r;
+  ['staff','admin'].forEach(x=>document.getElementById('role-'+x).classList.toggle('selected',x===r));
+}
+function doLogin(){
+  let pw=document.getElementById('pwInput').value;
+  if(pw===PW[role]){startApp()}
+  else{document.getElementById('loginErr').textContent='비밀번호가 틀렸습니다';document.getElementById('pwInput').value=''}
+}
+function logout(){
+  clearInterval(clockTimer);
+  document.getElementById('app').classList.remove('visible');
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('pwInput').value='';
+  document.getElementById('loginErr').textContent='';
+}
+function startApp(){
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('app').classList.add('visible');
+  document.getElementById('userBadge').textContent=role==='admin'?'관리자 🛡️':'직원 👤';
+  buildNav();
+  goPage(role==='staff'?'checklist':'dashboard');
+}
+
+const STAFF_NAV=[{id:'checklist',label:'업무 체크리스트'},{id:'manual',label:'업무 매뉴얼'},{id:'attend',label:'출퇴근'},{id:'inventory',label:'재고'},{id:'returns',label:'반품'},{id:'ranks',label:'제품 순위'}];
+const ADMIN_NAV=[{id:'dashboard',label:'대시보드'},{id:'salary',label:'급여'},{id:'allrecords',label:'출퇴근 기록'},{id:'inventory',label:'재고'},{id:'returns',label:'반품'},{id:'ranks',label:'제품 순위'}];
+
+function buildNav(){
+  let pages=role==='staff'?STAFF_NAV:ADMIN_NAV;
+  document.getElementById('mainNav').innerHTML=pages.map(p=>`<button class="nav-btn" id="nav-${p.id}" onclick="goPage('${p.id}')">${p.label}</button>`).join('');
+}
+function goPage(id){
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  let btn=document.getElementById('nav-'+id);if(btn)btn.classList.add('active');
+  clearInterval(clockTimer);
+  let c=document.getElementById('mainContent');c.innerHTML='';
+  const pages={checklist:renderChecklist,manual:renderManual,attend:renderAttend,dashboard:renderDashboard,salary:renderSalary,allrecords:renderAllRecords,inventory:renderInventory,returns:renderReturns,ranks:renderRanks};
+  if(pages[id])pages[id](c);
+}
+
+// ===== 체크리스트 =====
+const MORNING=[
+  {id:'att',   title:'출퇴근 기록',       desc:'출퇴근 탭에서 출근 버튼 클릭',                         link:null},
+  {id:'order', title:'토글 주문 수집',     desc:'토글 접속 → 주문수집 클릭 → 전체 플랫폼 주문 통합',   link:'https://www.togle.io/app/'},
+  {id:'cs',    title:'C/S 확인 및 답변',   desc:'토글 기타수집 → 고객 문의 확인 → 당일 답변 처리',    link:'https://www.togle.io/app/'},
+  {id:'ret',   title:'어제자 반품 확인',   desc:'어제 도착 반품 확인 → 상태 체크 → 반품 탭에 기록',   link:null},
+  {id:'rank',  title:'제품 순위 체크',     desc:'네이버·11번가·지마켓·옥션 순위 확인 후 순위 탭에 기록', link:null},
+  {id:'pack',  title:'발주 확인 후 포장',  desc:'송장 출력 → SKU 확인 → 박스 선택 → 포장 → 송장 부착', link:null},
+];
+const EVENING=[
+  {id:'reorder',title:'재발주 확인',       desc:'재고 탭 확인 → 안전재고 미만 항목 대표님 보고',    link:null},
+  {id:'packend',title:'포장 마무리',       desc:'당일 주문 전체 포장 완료 여부 확인',               link:null},
+  {id:'stock',  title:'재고 수량 입력',    desc:'현장 재고 직접 세서 재고 탭에 수량 입력',          link:null},
+  {id:'clean',  title:'청소',              desc:'포장 공간 정리 / 박스 정리 / 바닥 청소',           link:null},
+  {id:'report', title:'특이사항 보고',     desc:'대표님께 카톡으로 당일 특이사항 보고',             link:null},
+  {id:'attout', title:'퇴근 기록',         desc:'출퇴근 탭에서 퇴근 버튼 클릭',                    link:null},
+];
+
+function renderChecklist(c){
+  let now=new Date();
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 오늘의 업무</div>
+      <div style="font-size:12px;color:var(--text3)">${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 (${DAYS[now.getDay()]})</div>
+    </div>
+    <div class="checklist-section">
+      <div class="checklist-title">🌅 출근 시 업무</div>
+      <div class="check-progress"><div class="progress-bar"><div class="progress-fill" id="pm-bar"></div></div><div class="progress-text" id="pm-txt">0 / ${MORNING.length}</div></div>
+      <div id="cl-morning"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="checklist-section">
+      <div class="checklist-title">🌆 퇴근 전 업무 (16:00~)</div>
+      <div class="check-progress"><div class="progress-bar"><div class="progress-fill" id="pe-bar"></div></div><div class="progress-text" id="pe-txt">0 / ${EVENING.length}</div></div>
+      <div id="cl-evening"></div>
+    </div>
+  </div>`;
+  renderCheckItems('morning',MORNING);
+  renderCheckItems('evening',EVENING);
+}
+function renderCheckItems(type,items){
+  let saved=getChecklist(type);
+  let el=document.getElementById('cl-'+type);
+  el.innerHTML=items.map(item=>{
+    let done=!!saved[item.id];
+    return`<div class="check-item${done?' done':''}" onclick="toggleCheck('${type}','${item.id}',this)">
+      <input type="checkbox"${done?' checked':''} onclick="event.stopPropagation();toggleCheck('${type}','${item.id}',this.closest('.check-item'))">
+      <div class="check-item-body">
+        <div class="check-item-title">${item.title}</div>
+        <div class="check-item-desc">${item.desc}</div>
+        ${item.link?`<a class="check-link" href="${item.link}" target="_blank" onclick="event.stopPropagation()">토글 열기 →</a>`:''}
+      </div>
+    </div>`;
+  }).join('');
+  updateProg(type,items);
+}
+function toggleCheck(type,id,el){
+  let saved=getChecklist(type);saved[id]=!saved[id];setChecklist(type,saved);
+  let items=type==='morning'?MORNING:EVENING;
+  let done=saved[id];
+  el.classList.toggle('done',done);
+  el.querySelector('input[type=checkbox]').checked=done;
+  updateProg(type,items);
+}
+function updateProg(type,items){
+  let saved=getChecklist(type),cnt=items.filter(i=>saved[i.id]).length,pct=Math.round(cnt/items.length*100);
+  let bar=document.getElementById('p'+(type==='morning'?'m':'e')+'-bar');
+  let txt=document.getElementById('p'+(type==='morning'?'m':'e')+'-txt');
+  if(bar)bar.style.width=pct+'%';
+  if(txt)txt.textContent=cnt+' / '+items.length;
+}
+
+// ===== 업무 매뉴얼 =====
+function renderManual(c){
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header"><div class="card-title">📖 업무 매뉴얼</div></div>
+    <div class="manual-tabs">
+      <button class="manual-tab active" onclick="switchManual('sku',this)">📦 SKU / 포장 규칙</button>
+      <button class="manual-tab" onclick="switchManual('togle',this)">🔧 토글 사용법</button>
+      <button class="manual-tab" onclick="switchManual('pack',this)">📬 포장 방법</button>
+      <button class="manual-tab" onclick="switchManual('ret',this)">↩️ 반품 처리</button>
+      <button class="manual-tab" onclick="switchManual('송장',this)">🏷️ 송장 부착</button>
+    </div>
+
+    <div class="manual-section active" id="ms-sku">
+      <div class="tip" style="margin-bottom:16px">📌 핵심 개념: <strong>아이스팩 12개 = 1묶음</strong>. 박스 선택 기준은 아이스팩 묶음 수입니다.</div>
+      <h4 style="font-size:14px;font-weight:600;margin-bottom:10px">박스 선택 기준표</h4>
+      <table class="sku-table" style="margin-bottom:20px">
+        <thead><tr><th>표시</th><th>박스</th><th>조끼</th><th>아이스팩</th><th>쿨스카프</th><th>쿨패치</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sku-label">기본</span></td><td>B-63</td><td>1개</td><td>1묶음(12개)</td><td>1개</td><td>1개</td></tr>
+          <tr><td><span class="sku-label sku-a">A</span></td><td>C-40</td><td>1개</td><td>2묶음(24개)</td><td>1개</td><td>1개</td></tr>
+          <tr><td><span class="sku-label sku-b">B</span></td><td>C-40</td><td>2개</td><td>2묶음(24개)</td><td>2개</td><td>2개</td></tr>
+          <tr><td><span class="sku-label sku-cde">C</span></td><td>Ice Box</td><td>3개</td><td>3묶음(36개)</td><td>3개</td><td>3개</td></tr>
+          <tr><td><span class="sku-label sku-cde">D</span></td><td>Ice Box</td><td>4개</td><td>4묶음(48개)</td><td>4개</td><td>4개</td></tr>
+          <tr><td><span class="sku-label sku-cde">E</span></td><td>Ice Box</td><td>6개</td><td>6묶음(72개)</td><td>6개</td><td>6개</td></tr>
+        </tbody>
+      </table>
+      <h4 style="font-size:14px;font-weight:600;margin-bottom:10px">대량 주문 분할 포장</h4>
+      <div class="warn">⚠️ Ice Box 최대 수용: 아이스팩 묶음 10개. 초과 시 분할 포장 필수.</div>
+      <div style="margin-top:14px">
+        <div class="step">
+          <div class="step-num">예1</div>
+          <div class="step-body">
+            <h4>송장: (조끼1개 + 아이스팩12개) × 11</h4>
+            <p>→ 조끼 11개 + 아이스팩 11묶음 + 쿨스카프 11개 + 쿨패치 11개<br>
+            <strong>Ice Box ①</strong>: 아이스팩 10묶음<br>
+            <strong>Ice Box ②</strong>: 아이스팩 1묶음 + 조끼 11개 + 쿨스카프 11개 + 쿨패치 11개</p>
+            <div class="tip">💡 조끼·쿨스카프·쿨패치는 부피가 작아서 나머지 박스에 전부 넣으면 됩니다</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">예2</div>
+          <div class="step-body">
+            <h4>송장: (조끼1개 + 아이스팩24개) × 5</h4>
+            <p>아이스팩 24개 = 2묶음 → 5세트 = 10묶음<br>
+            → Ice Box 1개에 전부 포장 가능 (묶음 10개 = 최대치)<br>
+            → 조끼 5개 + 아이스팩 10묶음 + 쿨스카프 5개 + 쿨패치 5개</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="manual-section" id="ms-togle">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h4>토글 접속</h4><p><a href="https://www.togle.io/app/" target="_blank" class="check-link">togle.io 열기 →</a><br>로그인 후 메인 화면 진입</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h4>주문 수집</h4><p>상단 메뉴 <strong>주문수집</strong> 클릭 → 모든 플랫폼 주문 통합 수집<br>수집 완료 후 주문 목록 확인</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h4>송장 출력</h4><p>주문 선택 → 송장출력 클릭 → 프린터 확인 후 출력<br>출력된 송장 상품명에서 SKU 확인 후 포장 시작</p><div class="tip">💡 송장 예시: (조끼1개+아이스팩12개)×2 → B타입 포장</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h4>C/S 처리</h4><p>토글 메뉴 <strong>기타수집</strong> 클릭 → 최신 고객 문의 확인<br>문의 내용 읽고 해당 플랫폼에서 온라인 답변 작성</p><div class="warn">⚠️ 당일 답변 필수. 지연 시 플랫폼 페널티 발생</div></div></div>
+    </div>
+
+    <div class="manual-section" id="ms-pack">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h4>송장 확인</h4><p>출력된 송장 상품명 확인 → SKU 표 참고해서 박스 종류 결정</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h4>박스 준비 및 표시</h4><p>해당 박스 꺼내기 → 기본 외 타입은 박스 겉면에 A/B/C/D/E 마커로 표시</p><div class="tip">💡 표시 위치: 박스 옆면 상단. 나중에 헷갈리지 않게 크게 표시</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h4>제품 넣기</h4><p>① 아이스팩(묶음 확인) → ② 조끼 → ③ 쿨스카프 → ④ 쿨패치<br>인서트 레터는 제품 위에 올려서 고객이 바로 볼 수 있게</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h4>테이핑</h4><p>박스 상단·하단 십자 테이핑. 무거운 박스는 측면도 추가</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><h4>완료 적치</h4><p>포장 완료 박스는 지정 장소에 모아두기. 택배기사 픽업 전까지 이동 금지</p><div class="warn">⚠️ 송장 없는 박스는 절대 내보내지 말 것</div></div></div>
+    </div>
+
+    <div class="manual-section" id="ms-ret">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h4>반품 도착 확인</h4><p>토글에서 반품 접수 내역 확인. 당일 도착 반품 제품 수거 확인</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h4>제품 상태 분류</h4><p>반품 제품 개봉 → 정상 / 불량 / 고객파손 분류<br>불량 제품은 별도 보관 후 대표님께 즉시 보고</p><div class="warn">⚠️ 불량 제품 재판매 절대 금지</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h4>반품 탭에 기록</h4><p>반품 탭 → + 반품 등록 → 사유 / 제품 상태 / 환불금액 이상 여부 입력</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h4>환불금액 확인</h4><p>쿠팡/플랫폼에서 환불 금액 확인. 이상 있으면 대표님께 보고</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><h4>이의제기 (부당 반품)</h4><p>고객 귀책(오용·파손) 의심 시 → 대표님 보고 후 지시에 따라 이의제기<br>임의 환불 처리 금지</p></div></div>
+    </div>
+
+    <div class="manual-section" id="ms-송장">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h4>수량 대조</h4><p>출력된 송장 수량 = 포장 박스 수량 일치 여부 확인</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h4>부착 위치</h4><p>박스 상단 평평한 면에 부착. 구겨지거나 바코드 가리지 않게</p><div class="tip">💡 분할 포장 시: 같은 수취인 송장 여러 장 → 각 박스에 1장씩 부착</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h4>최종 확인</h4><p>송장 수취인명 ↔ 박스 내용물 최종 대조. 오배송 0건 목표</p><div class="warn">⚠️ 대조 없이 출고 금지. 오배송 발생 시 반품 비용 발생</div></div></div>
+    </div>
+  </div>`;
+}
+function switchManual(id,el){
+  document.querySelectorAll('.manual-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.manual-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('ms-'+id).classList.add('active');el.classList.add('active');
+}
+
+// ===== 출퇴근 =====
+function renderAttend(c){
+  c.innerHTML=`
+  <div class="card">
+    <div class="clock-time" id="ct">--:--:--</div>
+    <div class="clock-date" id="cd">--</div>
+    <div style="background:var(--bg2);border-radius:var(--radius-sm);padding:10px;text-align:center;font-size:13px;color:var(--text2);margin-bottom:16px">
+      근무 11:00~17:00 &nbsp;|&nbsp; 점심 13:00~14:00 제외 &nbsp;|&nbsp; 실근무 5시간
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button id="btnIn" onclick="doIn()" style="padding:14px 36px;font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;border:1.5px solid var(--green);background:var(--green-bg);color:var(--green)">✅ 출근</button>
+      <button id="btnOut" onclick="doOut()" disabled style="padding:14px 36px;font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);opacity:.4">🔚 퇴근</button>
+    </div>
+    <div style="text-align:center;margin-top:12px;min-height:24px" id="attSt"></div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="btn btn-sm" id="btnEdit" onclick="toggleEdit()" style="display:none;color:var(--text2)">✏️ 오늘 기록 수정</button>
+    </div>
+    <div id="editForm" style="display:none;background:var(--bg2);border-radius:var(--radius-sm);padding:16px;margin-top:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px">오늘 기록 수정</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">출근 시간</div><input type="time" id="editIn" style="width:130px"></div>
+        <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">퇴근 시간</div><input type="time" id="editOut" style="width:130px"></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="saveEdit()">저장</button>
+          <button class="btn btn-sm" onclick="toggleEdit()">취소</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">퇴근 전이면 퇴근 시간 비워두세요</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">이번 달 기록</div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>날짜</th><th>요일</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>상태</th></tr></thead>
+      <tbody id="myRec"></tbody>
+    </table></div>
+  </div>`;
+  tickClock();clockTimer=setInterval(tickClock,1000);refreshAtt();
+}
+function tickClock(){
+  let now=new Date(),e=document.getElementById('ct'),e2=document.getElementById('cd');
+  if(e)e.textContent=fmtTimeFull(now);
+  if(e2)e2.textContent=now.getFullYear()+'년 '+(now.getMonth()+1)+'월 '+now.getDate()+'일 ('+DAYS[now.getDay()]+')';
+}
+function doIn(){let k=today(),r=getRecords();r[k]={in:fmtTime(new Date()),out:null,day:getDay(k)};setRecords(r);refreshAtt()}
+function doOut(){let k=today(),r=getRecords();if(r[k])r[k].out=fmtTime(new Date());setRecords(r);refreshAtt()}
+function refreshAtt(){
+  let k=today(),r=getRecords()[k];
+  let bi=document.getElementById('btnIn'),bo=document.getElementById('btnOut');
+  let st=document.getElementById('attSt'),eb=document.getElementById('btnEdit');
+  if(!bi)return;
+  if(!r){
+    bi.disabled=false;bi.style.opacity='1';bo.disabled=true;bo.style.opacity='.4';
+    if(st)st.textContent='';if(eb)eb.style.display='none';
+  }else if(r.in&&!r.out){
+    bi.disabled=true;bi.style.opacity='.4';bo.disabled=false;bo.style.opacity='1';
+    bo.style.cssText='padding:14px 36px;font-size:16px;font-weight:600;border-radius:var(--radius);cursor:pointer;border:1.5px solid var(--red);background:var(--red-bg);color:var(--red)';
+    if(st)st.innerHTML='<span class="badge badge-green">출근 완료 '+r.in+'</span>';
+    if(eb)eb.style.display='inline-flex';
+  }else if(r.in&&r.out){
+    bi.disabled=true;bi.style.opacity='.4';bo.disabled=true;bo.style.opacity='.4';
+    let m=workMins(r.in,r.out);
+    if(st)st.innerHTML='<span class="badge badge-blue">근무 완료 · '+Math.floor(m/60)+'h '+Math.round(m%60)+'m</span>';
+    if(eb)eb.style.display='inline-flex';
+  }
+  renderMyRec();
+}
+function toggleEdit(){
+  let f=document.getElementById('editForm'),k=today(),r=getRecords()[k]||{};
+  if(f.style.display==='none'){f.style.display='block';document.getElementById('editIn').value=r.in||'11:00';document.getElementById('editOut').value=r.out||'';}
+  else f.style.display='none';
+}
+function saveEdit(){
+  let k=today(),inT=document.getElementById('editIn').value,outT=document.getElementById('editOut').value;
+  if(!inT)return;
+  let r=getRecords();r[k]={in:inT,out:outT||null,day:getDay(k)};setRecords(r);
+  document.getElementById('editForm').style.display='none';refreshAtt();
+}
+function renderMyRec(){
+  let now=new Date(),recs=getRecords();
+  let keys=Object.keys(recs).filter(k=>{let d=new Date(k);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).sort();
+  let tb=document.getElementById('myRec');if(!tb)return;
+  if(!keys.length){tb.innerHTML='<tr><td colspan="6" class="empty">기록 없음</td></tr>';return}
+  tb.innerHTML=keys.map(k=>{
+    let r=recs[k],m=workMins(r.in,r.out),hm=r.out?Math.floor(m/60)+'h '+Math.round(m%60)+'m':'-';
+    let badge=r.out?'<span class="badge badge-green">완료</span>':r.in?'<span class="badge badge-yellow">근무중</span>':'<span class="badge badge-gray">-</span>';
+    return`<tr><td>${k}</td><td>${r.day}</td><td>${r.in||'-'}</td><td>${r.out||'-'}</td><td>${hm}</td><td>${badge}</td></tr>`;
+  }).join('');
+}
+
+// ===== 재고 =====
+const INV_ITEMS=[
+  {key:'조끼박스',   label:'아이스조끼',  unit:'박스', mul:100, safe:0,  group:'자재', desc:''},
+  {key:'b63',        label:'B-63 박스',   unit:'박스', mul:100, safe:3,  group:'자재', desc:''},
+  {key:'c40',        label:'C-40 박스',   unit:'박스', mul:90,  safe:1,  group:'자재', desc:''},
+  {key:'icebox',     label:'Ice Box',     unit:'개',   mul:1,   safe:0,  group:'자재', desc:''},
+  {key:'현장basic',  label:'Basic (기본)',unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼1 + 아이스팩1묶음 + 쿨스카프1 + 쿨패치1 | B-63'},
+  {key:'현장a',      label:'A타입',       unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼1 + 아이스팩2묶음 + 쿨스카프1 + 쿨패치1 | C-40'},
+  {key:'현장b',      label:'B타입',       unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼2 + 아이스팩2묶음 + 쿨스카프2 + 쿨패치2 | C-40'},
+  {key:'현장c',      label:'C타입',       unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼3 + 아이스팩3묶음 + 쿨스카프3 + 쿨패치3 | Ice Box'},
+  {key:'현장d',      label:'D타입',       unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼4 + 아이스팩4묶음 + 쿨스카프4 + 쿨패치4 | Ice Box'},
+  {key:'현장e',      label:'E타입',       unit:'개',   mul:1,   safe:0,  group:'현장', desc:'조끼6 + 아이스팩6묶음 + 쿨스카프6 + 쿨패치6 | Ice Box'},
+];
+
+function renderInventory(c){
+  let inv=getInventory();
+  let zajaeCols='<div class="inv-row inv-row-header" style="grid-template-columns:150px 130px 90px 80px"><div>품목</div><div>수량</div><div>총 개수</div><div>상태</div></div>';
+  let zajaeRows=INV_ITEMS.filter(i=>i.group==='자재').map(i=>{
+    let v=parseInt(inv[i.key]||0),total=v*i.mul,warn=i.safe>0&&v<i.safe;
+    return`<div class="inv-row" style="grid-template-columns:150px 130px 90px 80px">
+      <div style="font-size:13px;font-weight:500">${i.label}${i.safe>0?`<div style="font-size:10px;color:var(--text3)">안전재고 ${i.safe}${i.unit}</div>`:''}</div>
+      <div><input type="number" min="0" value="${v}" style="width:80px" onchange="updateInv('${i.key}',this.value)"> ${i.unit}</div>
+      <div style="font-size:13px;color:var(--text2)">${i.mul>1?total.toLocaleString()+'개':'-'}</div>
+      <div>${warn?'<span style="color:var(--red);font-size:12px;font-weight:600">⚠️ 부족</span>':i.safe>0?'<span style="color:var(--green);font-size:12px">정상</span>':'-'}</div>
+    </div>`;
+  }).join('');
+
+  let hyunjangCols='<div class="inv-row inv-row-header" style="grid-template-columns:120px 90px 1fr"><div>타입</div><div>수량</div><div>구성</div></div>';
+  let hyunjangRows=INV_ITEMS.filter(i=>i.group==='현장').map(i=>{
+    let v=parseInt(inv[i.key]||0);
+    return`<div class="inv-row" style="grid-template-columns:120px 90px 1fr">
+      <div style="font-size:13px;font-weight:600">${i.label}</div>
+      <div><input type="number" min="0" value="${v}" style="width:70px" onchange="updateInv('${i.key}',this.value)"> 개</div>
+      <div style="font-size:12px;color:var(--text3)">${i.desc}</div>
+    </div>`;
+  }).join('');
+
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📦 재고 관리</div>
+      <div style="font-size:12px;color:var(--text3)">최종 확인: <span id="invDateEl">${load('mp_inv_date')||'-'}</span></div>
+    </div>
+    <div class="inv-section">
+      <div class="inv-section-title">🗃 자재 재고</div>
+      ${zajaeCols}${zajaeRows}
+    </div>
+    <div class="divider"></div>
+    <div class="inv-section">
+      <div class="inv-section-title">🏭 현장 재고 (포장 완료된 박스)</div>
+      ${hyunjangCols}${hyunjangRows}
+    </div>
+    <div style="text-align:right;margin-top:12px">
+      <button class="btn btn-sm" onclick="saveInvDate()">✅ 재고 확인 완료</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 재고 기록 (확인 완료 시 저장)</div>
+      <button class="btn btn-sm" onclick="if(confirm('로그 전체 삭제할까요?')){save('mp_inv_log',[]);renderInvLog()}">초기화</button>
+    </div>
+    <div class="table-wrap"><table id="invLogTable"></table></div>
+  </div>`;
+  renderInvLog();
+}
+function getInvLog(){return load('mp_inv_log')||[]}
+function setInvLog(v){save('mp_inv_log',v)}
+function updateInv(key,val){
+  let inv=getInventory();
+  inv[key]=parseInt(val)||0;
+  setInventory(inv);
+}
+function renderInvLog(){
+  let table=document.getElementById('invLogTable');if(!table)return;
+  let log=getInvLog();
+  if(!log.length){
+    table.innerHTML=`<tr><td colspan="${INV_ITEMS.length+1}" class="empty">저장된 기록 없음 — 재고 확인 완료 버튼을 누르면 기록됩니다</td></tr>`;
+    return;
+  }
+  let headers=INV_ITEMS.map(i=>`<th style="font-size:11px;white-space:nowrap">${i.label}</th>`).join('');
+  let rows=log.map(function(l){
+    if(!l.snap){return`<tr><td style="font-size:12px;color:var(--text2)">${l.date}</td><td colspan="${INV_ITEMS.length}" style="color:var(--text3)">기록 없음</td></tr>`}
+    let cells=INV_ITEMS.map(function(i){
+      let v=l.snap[i.key];
+      if(v===undefined||v===null||v==='')return`<td style="color:var(--text3)">-</td>`;
+      let display=i.mul>1?v*i.mul+'개<span style="font-size:10px;color:var(--text3)"> ('+v+i.unit+')</span>':v+'개';
+      let warn=i.safe>0&&v<i.safe;
+      return`<td style="${warn?'color:var(--red);font-weight:600':''}">${display}</td>`;
+    }).join('');
+    return`<tr><td style="font-size:12px;color:var(--text2);white-space:nowrap">${l.date}</td>${cells}</tr>`;
+  }).join('');
+  table.innerHTML=`<thead><tr><th>날짜</th>${headers}</tr></thead><tbody>${rows}</tbody>`;
+}
+function saveInvDate(){
+  let inv=getInventory();
+  let now=new Date();
+  let dateStr=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+  let snap={};
+  INV_ITEMS.forEach(function(item){snap[item.key]=parseInt(inv[item.key]||0)||0});
+  let log=getInvLog();
+  log.unshift({date:dateStr,snap:snap});
+  if(log.length>60)log=log.slice(0,60);
+  setInvLog(log);
+  save('mp_inv_date',dateStr);
+  let el=document.getElementById('invDateEl');if(el)el.textContent=dateStr;
+  renderInvLog();
+  alert('재고 확인 완료로 저장됐습니다.');
+}
+
+// ===== 반품 =====
+let retEditIdx=-1;
+function renderReturns(c){
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">↩️ 반품 관리</div>
+      <button class="btn btn-primary btn-sm" onclick="openRetForm(-1)">+ 반품 등록</button>
+    </div>
+    <div class="slide-form" id="retForm">
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:14px" id="retFormTitle">신규 반품 등록</div>
+      <div class="form-row">
+        <div class="form-group"><label>고객명</label><input type="text" id="rCust" placeholder="홍길동"></div>
+        <div class="form-group"><label>플랫폼</label><select id="rPlatform"><option>쿠팡</option><option>스마트스토어</option><option>기타</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>원 운송장번호</label><input type="text" id="rTrack1" placeholder="출고 시 운송장번호"></div>
+        <div class="form-group"><label>반품 운송장번호</label><input type="text" id="rTrack2" placeholder="반품 수거 운송장번호"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>반품 사유</label><select id="rReason"><option>단순 변심</option><option>상품 불량</option><option>오배송</option><option>기타</option></select></div>
+        <div class="form-group"><label>제품 상태</label><select id="rCond"><option>정상 (재판매 가능)</option><option>불량 (재판매 불가)</option><option>고객 파손</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>환불 금액</label><select id="rAmt"><option>정상</option><option>이상 있음 → 대표님 보고</option></select></div>
+        <div class="form-group"><label>처리 상태</label><select id="rStatus"><option>처리중</option><option>완료</option><option>이의제기</option></select></div>
+      </div>
+      <div class="form-group"><label>메모</label><textarea id="rMemo" placeholder="특이사항, 고객 요청사항 등"></textarea></div>
+      <div class="form-group">
+        <label>반품 사진 첨부</label>
+        <input type="file" id="rPhotos" accept="image/*" multiple style="font-size:13px;padding:6px 0;background:transparent;border:none;color:var(--text2)">
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">불량·파손 부위 사진. 여러 장 선택 가능</div>
+        <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary btn-sm" onclick="saveReturn()">저장</button>
+        <button class="btn btn-sm" onclick="closeRetForm()">취소</button>
+      </div>
+    </div>
+    <div class="table-wrap" style="margin-top:4px">
+      <table>
+        <thead><tr><th>날짜</th><th>고객</th><th>플랫폼</th><th>사유</th><th>제품상태</th><th>환불</th><th>상태</th><th>사진</th><th>관리</th></tr></thead>
+        <tbody id="retTb"></tbody>
+      </table>
+    </div>
+  </div>`;
+  document.getElementById('rPhotos').addEventListener('change',previewPhotos);
+  renderRetTb();
+}
+
+function openRetForm(idx){
+  retEditIdx=idx;
+  let form=document.getElementById('retForm');
+  let title=document.getElementById('retFormTitle');
+  if(idx===-1){
+    title.textContent='신규 반품 등록';
+    ['rCust','rTrack1','rTrack2','rMemo'].forEach(id=>document.getElementById(id).value='');
+    ['rPlatform','rReason','rCond','rAmt','rStatus'].forEach(id=>document.getElementById(id).selectedIndex=0);
+    document.getElementById('photoPreview').innerHTML='';
+    document.getElementById('rPhotos').value='';
+  } else {
+    title.textContent='반품 수정';
+    let r=getReturns()[idx];
+    document.getElementById('rCust').value=r.cust||'';
+    document.getElementById('rTrack1').value=r.track1||'';
+    document.getElementById('rTrack2').value=r.track2||'';
+    document.getElementById('rMemo').value=r.memo||'';
+    document.getElementById('rPhotos').value='';
+    setSelectVal('rPlatform',r.platform);
+    setSelectVal('rReason',r.reason);
+    setSelectVal('rCond',r.cond);
+    setSelectVal('rAmt',r.amt);
+    setSelectVal('rStatus',r.status);
+    // 기존 사진 미리보기
+    let pv=document.getElementById('photoPreview');
+    pv.innerHTML='';
+    if(r.photos&&r.photos.length){
+      r.photos.forEach(src=>{
+        let img=document.createElement('img');
+        img.src=src;img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--border2)';
+        pv.appendChild(img);
+      });
+    }
+  }
+  form.classList.add('open');
+  form.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function closeRetForm(){
+  document.getElementById('retForm').classList.remove('open');
+  retEditIdx=-1;
+}
+function setSelectVal(id,val){
+  let sel=document.getElementById(id);
+  for(let i=0;i<sel.options.length;i++){if(sel.options[i].value===val||sel.options[i].text===val){sel.selectedIndex=i;break}}
+}
+function previewPhotos(){
+  let files=Array.from(document.getElementById('rPhotos').files);
+  if(files.length>5){alert('사진은 최대 5장까지 첨부 가능합니다.');document.getElementById('rPhotos').value='';return}
+  let oversize=files.filter(f=>f.size>10*1024*1024);
+  if(oversize.length){alert('사진 1장당 최대 10MB입니다.\n큰 파일: '+oversize.map(f=>f.name).join(', '));document.getElementById('rPhotos').value='';return}
+  let pv=document.getElementById('photoPreview');pv.innerHTML='';
+  files.forEach(f=>{
+    let reader=new FileReader();
+    reader.onload=e=>{
+      let img=document.createElement('img');
+      img.src=e.target.result;
+      img.style.cssText='width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid var(--border2)';
+      pv.appendChild(img);
+    };reader.readAsDataURL(f);
+  });
+}
+// 이미지를 Canvas로 압축 (최대 800px, quality 0.6)
+function compressImage(file){
+  return new Promise(resolve=>{
+    let reader=new FileReader();
+    reader.onload=e=>{
+      let img=new Image();
+      img.onload=()=>{
+        let canvas=document.createElement('canvas');
+        let MAX=800,w=img.width,h=img.height;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX}else{w=Math.round(w*MAX/h);h=MAX}}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg',0.6));
+      };img.src=e.target.result;
+    };reader.readAsDataURL(file);
+  });
+}
+function saveReturn(){
+  let files=Array.from(document.getElementById('rPhotos').files);
+  let rets=getReturns();
+  function buildEntry(photos){
+    return{
+      date:today(),
+      cust:document.getElementById('rCust').value,
+      platform:document.getElementById('rPlatform').value,
+      track1:document.getElementById('rTrack1').value,
+      track2:document.getElementById('rTrack2').value,
+      reason:document.getElementById('rReason').value,
+      cond:document.getElementById('rCond').value,
+      amt:document.getElementById('rAmt').value,
+      status:document.getElementById('rStatus').value,
+      memo:document.getElementById('rMemo').value,
+      photos:photos
+    };
+  }
+  function doSave(photos){
+    let entry=buildEntry(photos);
+    if(retEditIdx>=0)rets[retEditIdx]=entry;else rets.push(entry);
+    try{setReturns(rets);}catch(e){
+      alert('저장 용량 초과입니다. 사진을 줄이거나 오래된 반품 기록을 삭제해주세요.');return;
+    }
+    closeRetForm();renderRetTb();
+  }
+  if(files.length===0){
+    let existingPhotos=retEditIdx>=0&&rets[retEditIdx]?rets[retEditIdx].photos||[]:[];
+    doSave(existingPhotos);return;
+  }
+  if(files.length>5){alert('사진은 최대 5장까지 가능합니다.');return}
+  // 압축 후 저장
+  Promise.all(files.map(compressImage)).then(results=>doSave(results));
+}
+function renderRetTb(){
+  let rets=getReturns(),tb=document.getElementById('retTb');
+  if(!rets.length){tb.innerHTML='<tr><td colspan="9" class="empty">반품 내역 없음</td></tr>';return}
+  tb.innerHTML=[...rets].reverse().map((r,ri)=>{
+    let i=rets.length-1-ri;
+    let cb=r.cond&&(r.cond.includes('불량')||r.cond.includes('파손'))?'badge-red':'badge-gray';
+    let ab=r.amt&&r.amt.includes('이상')?'badge-red':'badge-gray';
+    let sb=r.status==='완료'?'badge-green':r.status==='이의제기'?'badge-red':'badge-yellow';
+    let photoCell=r.photos&&r.photos.length
+      ?`<span style="cursor:pointer;color:var(--blue);font-size:12px" onclick="showPhotos(${i})">📷 ${r.photos.length}장</span>`
+      :`<span style="color:var(--text3);font-size:12px">없음</span>`;
+    let trackInfo='';
+    if(r.track1||r.track2)trackInfo=`<div style="font-size:10px;color:var(--text3);margin-top:2px">${r.track1?'원:'+r.track1:''} ${r.track2?'반:'+r.track2:''}</div>`;
+    return`<tr>
+      <td>${r.date}</td>
+      <td style="font-weight:500">${r.cust||'-'}${trackInfo}</td>
+      <td>${r.platform||'-'}</td>
+      <td>${r.reason||'-'}</td>
+      <td><span class="badge ${cb}" style="font-size:10px">${r.cond||'-'}</span></td>
+      <td><span class="badge ${ab}" style="font-size:10px">${r.amt&&r.amt.includes('이상')?'⚠️ 이상':'정상'}</span></td>
+      <td><span class="badge ${sb}">${r.status||'-'}</span></td>
+      <td>${photoCell}</td>
+      <td style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="openRetForm(${i})" style="padding:3px 8px">수정</button>
+        <button class="btn btn-sm del-btn" id="delbtn-${i}" onclick="confirmDelRet(${i},this)" style="color:var(--text2);border-color:var(--border2);padding:3px 8px">삭제</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function showPhotos(i){
+  let r=getReturns()[i];
+  if(!r||!r.photos||!r.photos.length)return;
+  let overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow-y:auto;padding:20px';
+  overlay.onclick=e=>{if(e.target===overlay)overlay.remove()};
+  let close=document.createElement('button');
+  close.textContent='✕ 닫기';close.className='btn btn-sm';close.style.cssText='position:fixed;top:16px;right:16px;z-index:10000';
+  close.onclick=()=>overlay.remove();
+  overlay.appendChild(close);
+  let title=document.createElement('div');
+  title.textContent=(r.cust||'반품')+' 사진 ('+r.photos.length+'장)';
+  title.style.cssText='color:#fff;font-size:15px;font-weight:600;margin-bottom:8px';
+  overlay.appendChild(title);
+  r.photos.forEach((src,pi)=>{
+    let img=document.createElement('img');
+    img.src=src;img.style.cssText='max-width:90vw;max-height:70vh;object-fit:contain;border-radius:8px;border:1px solid #333';
+    overlay.appendChild(img);
+  });
+  document.body.appendChild(overlay);
+}
+function confirmDelRet(i,btn){
+  if(btn.dataset.confirm==='1'){
+    // 두 번째 클릭 → 실제 삭제
+    let r=getReturns();
+    r.splice(i,1);
+    setReturns(r);
+    renderRetTb();
+  } else {
+    // 첫 번째 클릭 → 빨간색으로 바꾸고 대기
+    btn.dataset.confirm='1';
+    btn.textContent='정말 삭제?';
+    btn.style.color='var(--red)';
+    btn.style.borderColor='var(--red)';
+    // 3초 후 원상복귀
+    setTimeout(()=>{
+      if(btn&&btn.dataset.confirm==='1'){
+        btn.dataset.confirm='';
+        btn.textContent='삭제';
+        btn.style.color='var(--text2)';
+        btn.style.borderColor='var(--border2)';
+      }
+    },3000);
+  }
+}
+function delRet(i){let r=getReturns();r.splice(i,1);setReturns(r);renderRetTb()}
+
+// ===== 대시보드 (관리자) =====
+function renderDashboard(c){
+  let recs=getRecords(),all=allWorkDays(),totalDays=0,totalMins=0;
+  all.forEach(k=>{let r=recs[k];if(r&&r.in&&r.out){totalDays++;totalMins+=workMins(r.in,r.out)}});
+  let wm=buildWeekMap(all),base=totalMins/60*HOURLY,bonus=Object.values(wm).reduce((s,w)=>s+w.bonus,0);
+  let rets=getReturns(),pending=rets.filter(r=>r.status==='처리중').length;
+  let tr=recs[today()];
+  let todaySt=tr&&tr.out?'퇴근 완료':tr&&tr.in?'근무 중':'미출근';
+  let inv=getInventory();
+  let lowStock=INV_ITEMS.filter(i=>i.safe>0&&(parseInt(inv[i.key]||0))<i.safe).length;
+
+  c.innerHTML=`
+  <div class="stat-grid col4" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-label">오늘 출근 상태</div>
+      <div class="stat-value" style="font-size:15px">${todaySt==='근무 중'?'🟢 근무 중':todaySt==='퇴근 완료'?'✅ 퇴근':'❌ 미출근'}</div>
+      <div class="stat-sub">${tr&&tr.in?tr.in:'-'} ~ ${tr&&tr.out?tr.out:'-'}</div>
+    </div>
+    <div class="stat"><div class="stat-label">누적 출근일</div><div class="stat-value">${totalDays}일</div><div class="stat-sub">전체 ${all.length}일</div></div>
+    <div class="stat"><div class="stat-label">현재까지 급여</div><div class="stat-value" style="font-size:15px">${fmtMoney(base+bonus)}</div><div class="stat-sub">주휴 포함</div></div>
+    <div class="stat"><div class="stat-label">반품 처리중 / 재고부족</div>
+      <div class="stat-value" style="font-size:15px;${pending||lowStock?'color:var(--yellow)':''}">${pending}건 / ${lowStock}종</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card"><div class="card-title" style="margin-bottom:12px">이번 주 출근</div>${weekMini()}</div>
+    <div class="card"><div class="card-title" style="margin-bottom:12px">안전재고 현황</div>${invMini()}</div>
+  </div>`;
+}
+function weekMini(){
+  let wk=weekStart(today()),recs=getRecords(),days=allWorkDays().filter(k=>weekStart(k)===wk);
+  if(!days.length)return'<div class="empty">이번 주 근무일 없음</div>';
+  return days.map(k=>{
+    let r=recs[k],m=r&&r.in&&r.out?workMins(r.in,r.out):0;
+    let badge=r&&r.out?'<span class="badge badge-green">완료</span>':r&&r.in?'<span class="badge badge-yellow">근무중</span>':'<span class="badge badge-gray">-</span>';
+    return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${k} (${getDay(k)})</span><span style="display:flex;gap:8px;align-items:center">${m?Math.floor(m/60)+'h':''} ${badge}</span></div>`;
+  }).join('');
+}
+function invMini(){
+  let inv=getInventory();
+  let warns=INV_ITEMS.filter(i=>i.safe>0&&(parseInt(inv[i.key]||0))<i.safe);
+  if(!warns.length)return'<div style="color:var(--green);font-size:13px;padding:8px 0">✅ 모든 항목 정상</div>';
+  return warns.map(i=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <span>${i.label}</span><span style="color:var(--red);font-size:12px;font-weight:600">⚠️ ${parseInt(inv[i.key]||0)}${i.unit} (기준 ${i.safe}${i.unit})</span></div>`).join('');
+}
+
+// ===== 급여 (관리자) =====
+function renderSalary(c){
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-title" style="margin-bottom:16px">💰 급여 계산</div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+      <select id="salSel" onchange="calcSal()" style="min-width:120px"><option value="all">전체</option><option value="week">이번 주</option><option value="month">이번 달</option></select>
+      <input type="date" id="salFrom" value="${START}" onchange="calcSal()" style="width:140px">
+      <span style="color:var(--text2)">~</span>
+      <input type="date" id="salTo" value="${END}" onchange="calcSal()" style="width:140px">
+    </div>
+    <div id="salResult"></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">주별 급여 내역</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>주차</th><th>기간</th><th>출근일</th><th>근무시간</th><th>기본급</th><th>주휴수당</th><th>소계</th></tr></thead>
+      <tbody id="wkSalTb"></tbody>
+    </table></div>
+  </div>`;
+  calcSal();renderWkSal();
+}
+function calcSal(){
+  let sel=document.getElementById('salSel').value,now=new Date(),all=allWorkDays(),filtered=all;
+  let from=document.getElementById('salFrom').value,to=document.getElementById('salTo').value;
+  if(sel==='week'){let wk=weekStart(today());filtered=all.filter(k=>weekStart(k)===wk)}
+  else if(sel==='month'){filtered=all.filter(k=>k.startsWith(now.getFullYear()+'-'+pad(now.getMonth()+1)))}
+  else if(from&&to){filtered=all.filter(k=>k>=from&&k<=to)}
+  let days=0,mins=0,recs=getRecords();
+  filtered.forEach(k=>{let r=recs[k];if(r&&r.in&&r.out){days++;mins+=workMins(r.in,r.out)}});
+  let base=mins/60*HOURLY,wm=buildWeekMap(filtered),bonus=Object.values(wm).reduce((s,w)=>s+w.bonus,0);
+  document.getElementById('salResult').innerHTML=`
+    <div class="pay-row"><span>근무일수</span><span>${days}일</span></div>
+    <div class="pay-row"><span>총 근무시간</span><span>${Math.round(mins/60*10)/10}h</span></div>
+    <div class="pay-row"><span>시급</span><span>${fmtMoney(HOURLY)}</span></div>
+    <div class="pay-row"><span>기본급</span><span>${fmtMoney(base)}</span></div>
+    <div class="pay-row"><span>주휴수당</span><span>${bonus?fmtMoney(bonus):'-'}</span></div>
+    <div class="pay-row"><span>최종 지급액</span><span>${fmtMoney(base+bonus)}</span></div>`;
+}
+function renderWkSal(){
+  let all=allWorkDays(),weeks=[...new Set(all.map(weekStart))].sort(),wm=buildWeekMap(all);
+  document.getElementById('wkSalTb').innerHTML=weeks.map((wk,i)=>{
+    let w=wm[wk]||{days:0,mins:0,bonus:0},base=w.mins/60*HOURLY;
+    let end=new Date(wk);end.setDate(end.getDate()+4);
+    let es=end.getFullYear()+'-'+pad(end.getMonth()+1)+'-'+pad(end.getDate());
+    return`<tr><td>${i+1}주차</td><td style="font-size:12px;color:var(--text2)">${wk}~${es}</td><td>${w.days}일</td><td>${Math.round(w.mins/60*10)/10}h</td><td>${fmtMoney(base)}</td><td>${w.bonus?fmtMoney(w.bonus):'-'}</td><td style="font-weight:700">${fmtMoney(base+w.bonus)}</td></tr>`;
+  }).join('');
+}
+
+// ===== 전체 출퇴근 (관리자) =====
+function renderAllRecords(c){
+  let all=allWorkDays(),recs=getRecords();
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">전체 출퇴근 기록</div>
+      <button class="btn btn-sm" onclick="exportCSV()">📥 CSV</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>날짜</th><th>요일</th><th>출근</th><th>퇴근</th><th>근무시간</th><th>상태</th><th>수정</th></tr></thead>
+      <tbody id="allRecTb"></tbody>
+    </table></div>
+  </div>`;
+  renderAllRecTb();
+}
+function renderAllRecTb(){
+  let all=allWorkDays(),recs=getRecords(),tb=document.getElementById('allRecTb');
+  tb.innerHTML=all.map(k=>{
+    let r=recs[k];
+    if(r&&r.in){
+      let m=workMins(r.in,r.out),hm=r.out?Math.floor(m/60)+'h '+Math.round(m%60)+'m':'-';
+      let badge=r.out?'<span class="badge badge-green">완료</span>':'<span class="badge badge-yellow">근무중</span>';
+      return`<tr><td>${k}</td><td>${getDay(k)}</td><td>${r.in}</td><td>${r.out||'-'}</td><td>${hm}</td><td>${badge}</td>
+        <td><button class="btn btn-sm" onclick="adminEdit('${k}',this)">수정</button></td></tr>`;
+    }
+    return`<tr style="opacity:.35"><td>${k}</td><td>${getDay(k)}</td><td>-</td><td>-</td><td>-</td><td><span class="badge badge-gray">미기록</span></td><td></td></tr>`;
+  }).join('');
+}
+function adminEdit(k,btn){
+  let r=getRecords()[k]||{},row=btn.closest('tr');
+  let ex=row.nextSibling;if(ex&&ex.classList&&ex.classList.contains('edit-inline-row')){ex.remove();return}
+  let nr=document.createElement('tr');nr.className='edit-inline-row';
+  let td=document.createElement('td');td.colSpan=7;td.style.cssText='padding:12px;background:var(--bg2)';
+  td.innerHTML=`<div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">출근</div><input type="time" id="ae-in" value="${r.in||'11:00'}" style="width:120px"></div>
+    <div><div style="font-size:11px;color:var(--text3);margin-bottom:3px">퇴근</div><input type="time" id="ae-out" value="${r.out||'17:00'}" style="width:120px"></div>
+    <button class="btn btn-primary btn-sm" onclick="saveAdminEdit('${k}')">저장</button>
+    <button class="btn btn-sm" onclick="this.closest('.edit-inline-row').remove()">취소</button>
+  </div>`;
+  nr.appendChild(td);row.parentNode.insertBefore(nr,row.nextSibling);
+}
+function saveAdminEdit(k){
+  let inT=document.getElementById('ae-in').value,outT=document.getElementById('ae-out').value;
+  let r=getRecords();r[k]={in:inT,out:outT||null,day:getDay(k)};setRecords(r);
+  renderAllRecTb();
+  document.querySelectorAll('.edit-inline-row').forEach(el=>el.remove());
+}
+function exportCSV(){
+  let all=allWorkDays(),recs=getRecords();
+  let rows=[['날짜','요일','출근','퇴근','근무시간(분)']];
+  all.forEach(k=>{let r=recs[k];if(r&&r.in)rows.push([k,getDay(k),r.in,r.out||'',r.out?Math.round(workMins(r.in,r.out)):''])});
+  let a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(rows.map(r=>r.join(',')).join('\n'));a.download='출퇴근기록.csv';a.click();
+}
+
+// ===== 제품 순위 =====
+const RANK_PLATFORMS=[
+  {key:'naver',  label:'네이버',  badge:'badge-green', link:'https://search.shopping.naver.com/search/all?query=%EC%95%84%EC%9D%B4%EC%8A%A4%EC%A1%B0%EB%81%BC&frm=NVSCVUI&nl-ts-pid=jB5W7wqos5ossk%2FyOY0-512936'},
+  {key:'11st',   label:'11번가', badge:'badge-red',   link:'https://search.11st.co.kr/pc/total-search?kwd=%25EC%2595%2584%25EC%259D%25B4%25EC%258A%25A4%25EC%25A1%25B0%25EB%2581%25BC&tabId=TOTAL_SEARCH'},
+  {key:'gmarket',label:'지마켓', badge:'badge-blue',  link:'https://www.gmarket.co.kr/n/search?spm=gmktpc.home.searchtop.dsearchbox.1fbf486apkmmQM&keyword=%EC%95%84%EC%9D%B4%EC%8A%A4%EC%A1%B0%EB%81%BC'},
+  {key:'auction',label:'옥션',   badge:'badge-yellow',link:'https://www.auction.co.kr/n/search?keyword=%EC%95%84%EC%9D%B4%EC%8A%A4%EC%A1%B0%EB%81%BC'},
+];
+function getRankLog(){return load('mp_rank_log')||[]}
+function setRankLog(v){save('mp_rank_log',v)}
+
+function renderRanks(c){
+  let current=load('mp_rank_current')||{};
+  let log=getRankLog();
+  // 전일 데이터 (가장 최근 로그)
+  let prevSnap=log.length?log[0].snap:{};
+
+  let platformInputs=RANK_PLATFORMS.map(p=>{
+    let v=current[p.key]||'';
+    let prev=prevSnap[p.key];
+    let diffHtml='';
+    if(prev&&v){let d=prev-parseInt(v);diffHtml=d>0?`<span style="color:var(--green);font-size:11px"> ▲${d}</span>`:d<0?`<span style="color:var(--red);font-size:11px"> ▼${Math.abs(d)}</span>`:`<span style="color:var(--text3);font-size:11px"> —</span>`}
+    return`<div style="display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="width:70px"><span class="badge ${p.badge}">${p.label}</span></div>
+      <a href="${p.link}" target="_blank" class="btn btn-sm" style="font-size:12px;text-decoration:none;border-color:var(--blue);color:var(--blue);padding:5px 12px">🔗 바로가기</a>
+      <input type="number" min="1" placeholder="순위 입력" value="${v}" style="width:100px;text-align:center;font-size:16px;font-weight:700"
+        oninput="updateRankCurrent('${p.key}',this.value);updateRankDiff('diff-${p.key}',this.value,${prev||0})">
+      <span style="font-size:13px;color:var(--text2)">위</span>
+      <span id="diff-${p.key}">${diffHtml}</span>
+      ${prev?`<span style="font-size:11px;color:var(--text3)">전일 ${prev}위</span>`:''}
+    </div>`;
+  }).join('');
+
+  c.innerHTML=`
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🏆 제품 순위 입력</div>
+      <div style="font-size:12px;color:var(--text3)">키워드: <strong style="color:var(--text)">아이스조끼</strong></div>
+    </div>
+    <div style="background:var(--bg2);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--text2);margin-bottom:16px">
+      📌 각 플랫폼 링크 클릭 → 아이스조끼 검색 → 우리 제품 순위 확인 → 숫자 입력 → 저장
+    </div>
+    ${platformInputs}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">
+      <div style="font-size:12px;color:var(--text3)">최종 저장: <span id="rankSavedAt">${load('mp_rank_saved')||'-'}</span></div>
+      <button class="btn btn-primary btn-sm" onclick="saveRankLog()">✅ 순위 확인 완료 (저장)</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📋 순위 기록 (확인 완료 시 저장)</div>
+      <button class="btn btn-sm" onclick="if(confirm('순위 로그 전체 삭제할까요?')){setRankLog([]);renderRankLogTable()}">초기화</button>
+    </div>
+    <div class="table-wrap">
+      <table id="rankLogTable"></table>
+    </div>
+  </div>`;
+
+  renderRankLogTable();
+}
+
+function updateRankCurrent(key,val){
+  let c=load('mp_rank_current')||{};
+  c[key]=parseInt(val)||0;
+  save('mp_rank_current',c);
+}
+function updateRankDiff(elId,val,prev){
+  let el=document.getElementById(elId);if(!el||!prev)return;
+  let v=parseInt(val);if(!v)return;
+  let d=prev-v;
+  el.innerHTML=d>0?`<span style="color:var(--green);font-size:11px">▲${d}</span>`:d<0?`<span style="color:var(--red);font-size:11px">▼${Math.abs(d)}</span>`:`<span style="color:var(--text3);font-size:11px">—</span>`;
+}
+function saveRankLog(){
+  let current=load('mp_rank_current')||{};
+  let hasData=RANK_PLATFORMS.some(p=>current[p.key]>0);
+  if(!hasData){alert('순위를 최소 1개 이상 입력해주세요.');return}
+  let now=new Date();
+  let dateStr=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+  let snap={};
+  RANK_PLATFORMS.forEach(p=>{snap[p.key]=parseInt(current[p.key])||0});
+  let log=getRankLog();
+  log.unshift({date:dateStr,snap});
+  if(log.length>60)log=log.slice(0,60);
+  setRankLog(log);
+  save('mp_rank_saved',dateStr);
+  let el=document.getElementById('rankSavedAt');if(el)el.textContent=dateStr;
+  renderRankLogTable();
+  alert('순위가 저장됐습니다.');
+}
+function renderRankLogTable(){
+  let table=document.getElementById('rankLogTable');if(!table)return;
+  let log=getRankLog();
+  if(!log.length){
+    table.innerHTML=`<tr><td colspan="${RANK_PLATFORMS.length+1}" class="empty">저장된 기록 없음 — 순위 확인 완료 버튼을 누르면 기록됩니다</td></tr>`;
+    return;
+  }
+  let headers=RANK_PLATFORMS.map(p=>`<th><span class="badge ${p.badge}" style="font-size:11px">${p.label}</span></th>`).join('');
+  let rows=log.map(function(l,li){
+    let prev=log[li+1]?log[li+1].snap:null;
+    let cells=RANK_PLATFORMS.map(function(p){
+      let v=l.snap?l.snap[p.key]:null;
+      if(!v)return`<td style="color:var(--text3)">-</td>`;
+      let diffHtml='';
+      if(prev&&prev[p.key]){
+        let d=prev[p.key]-v;
+        diffHtml=d>0?`<span style="color:var(--green);font-size:10px"> ▲${d}</span>`:d<0?`<span style="color:var(--red);font-size:10px"> ▼${Math.abs(d)}</span>`:`<span style="color:var(--text3);font-size:10px"> —</span>`;
+      }
+      return`<td style="font-weight:700;font-size:15px">${v}위${diffHtml}</td>`;
+    }).join('');
+    return`<tr><td style="font-size:12px;color:var(--text2);white-space:nowrap">${l.date}</td>${cells}</tr>`;
+  }).join('');
+  table.innerHTML=`<thead><tr><th>날짜</th>${headers}</tr></thead><tbody>${rows}</tbody>`;
+}
+</script>
+</body>
+</html>
